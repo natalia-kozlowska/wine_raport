@@ -40,7 +40,7 @@ The answer to these and other questions is hidden in my analysis to I invite you
 <center>
 # Did the more expensive wines get higher points?
 
-<img src="raportScript_files/figure-html/unnamed-chunk-1-1.png" width="90%" style="display: block; margin: auto;" />
+<img src="raport_files/figure-html/unnamed-chunk-1-1.png" width="90%" style="display: block; margin: auto;" />
 <div style="text-align: justify"> 
 
 I must admit that I expected such results. The linear relationship between the points obtained and the price is very clear here. However, some wines from 2013, despite their high price, were rated lower than the rest. 
@@ -110,7 +110,7 @@ We try to avoid these wines, because they are not very well rated by reviewers, 
 <center>
 # Have the older wines scored better?
 
-<img src="raportScript_files/figure-html/unnamed-chunk-5-1.png" width="90%" style="display: block; margin: auto;" />
+<img src="raport_files/figure-html/unnamed-chunk-5-1.png" width="90%" style="display: block; margin: auto;" />
 <div style="text-align: justify"> 
 
 In my analysis, I wanted to focus mainly on the biggest stereotypes and check their reality in the real world. As it turns out, the age of the wine does not always affect its quality. In the chart, we can see visible differences between the groups of wines. Perhaps the myth that better wine = older wine has just been refuted? It is so often that time is not good for wines at all. An example is the French Beaujolais nouveau, a red wine made from gamay grape varieties. The production process allows the fermentation to be completed quickly and the wine is sold as soon as it is finished, however, as a consequence, the life of such wine is limited only to about a year.
@@ -126,18 +126,18 @@ In my analysis, I wanted to focus mainly on the biggest stereotypes and check th
 Another question that bothers everyone; 'Which country do you choose a good wine from?' Since we do not know each other about the strains, we do not know anything about the yearbook, maybe the knowledge of the country of origin will help us with this?
 
 <div> 
-<img src="raportScript_files/figure-html/unnamed-chunk-6-1.png" width="90%" style="display: block; margin: auto;" />
+<img src="raport_files/figure-html/unnamed-chunk-6-1.png" width="90%" style="display: block; margin: auto;" />
 
 <div> 
 
-<img src="raportScript_files/figure-html/unnamed-chunk-7-1.png" width="90%" style="display: block; margin: auto;" />
+<img src="raport_files/figure-html/unnamed-chunk-7-1.png" width="90%" style="display: block; margin: auto;" />
 
 <div style="text-align: justify"> 
 
 And we have the answer! If we want a good wine, we will DEFINITELY choose Mexico or Brazil, unless we do not care;) Interestingly, wines from Austria and Germany are the best, while such old-timers as Italy and France ranked low in the ranking. It seems that for wine connoisseurs, the podium should not be surprising. Both Austria and Germany are leaders in the production of riesling, world-famous white wines. Interestingly, this grape can be used to produce both slovak and dry wines, so something for everyone.
 
 <div>
-<img src="raportScript_files/figure-html/unnamed-chunk-8-1.png" width="90%" style="display: block; margin: auto;" />
+<img src="raport_files/figure-html/unnamed-chunk-8-1.png" width="90%" style="display: block; margin: auto;" />
 
 ********************************************************************************
 <center>
@@ -171,10 +171,10 @@ BINGO! It turns out that the differences do exist and are very clear. While the 
 Below we can see which words were the most popular among the reviewers when writing reviews about individual wines.
 
 <div>
-<img src="raportScript_files/figure-html/unnamed-chunk-11-1.png" width="90%" style="display: block; margin: auto;" />
+<img src="raport_files/figure-html/unnamed-chunk-11-1.png" width="90%" style="display: block; margin: auto;" />
 
 
-<img src="raportScript_files/figure-html/unnamed-chunk-12-1.png" width="90%" style="display: block; margin: auto;" />
+<img src="raport_files/figure-html/unnamed-chunk-12-1.png" width="90%" style="display: block; margin: auto;" />
 
 ********************************************************************************
 <center>
@@ -187,7 +187,7 @@ As I mentioned at the beginning, the 21st century brought about a significant ch
 The fact that nowadays it is possible to grow grapevines in virtually every country, I wanted to check the price of wine depending on the continent it comes from.
 
 </div>
-<img src="raportScript_files/figure-html/unnamed-chunk-13-1.png" width="90%" style="display: block; margin: auto;" />
+<img src="raport_files/figure-html/unnamed-chunk-13-1.png" width="90%" style="display: block; margin: auto;" />
 
 <div style="text-align: justify"> 
 As you can see, the price differences are not very noticeable at first glance. However, on closer inspection, we can come to the conclusion that the most expensive wines come from North America, and the cheapest from South America.

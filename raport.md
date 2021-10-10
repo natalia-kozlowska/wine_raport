@@ -12,115 +12,7 @@ params:
 editor_options:
   chunk_output_type: console
 ---
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  echo = FALSE,
-  warning = FALSE,
-  message = FALSE,
-  fig.align = "center",
-  out.width = "90%",
-  fig.width = 6,
-  fig.asp = 0.618)
 
-library("naniar")
-library("dplyr")
-library("tidyverse")
-library("caret")
-library("skimr")
-library("lubridate")
-library("descr")
-library("precrec")
-library("tm")
-library("viridis")
-
-wine <- vroom::vroom('data1/winemag-data-130k-v2.csv')
-set.seed(1)
-
-wine <- wine %>% 
-  rename(region = region_1)
-
-wine <- wine %>% 
-   mutate(country = as.factor(country)) %>% 
-   mutate(province = as.factor(province)) %>% 
-   select(-...1, - taster_twitter_handle,
-          -region_2, -designation) 
-   
-wine <- wine %>%    
-   add_count(country) %>% 
-   add_count(variety) 
-
-wine <- drop_na(wine, price, points) %>% 
-   mutate(years = ifelse(grepl("(1|2)\\d{3}", title), 
-                         str_extract(title,"(1|2)\\d{3}"), NA)) %>% 
-   mutate(years = as.numeric(years)) %>% 
-   mutate(years = ifelse(years < 1929, NA, years))
-
-wine <- wine %>% mutate(
-   wine_category = as.factor(case_when(
-      points < 85 ~ "Good",
-      points > 85 & points <89 ~ "Very good",
-      points > 89 & points <94 ~ "Outstanding",
-      points > 94 ~ "Classic"
-   )))
-
-wine <- wine %>% mutate(
-   gender_author = as.character(case_when(
-   taster_name %in% c('Alexander Peartree','Joe Czerwinski','Matt Kettmann',
-                      'Michael Schachner','Mike DeSimone',
-                      'Paul Gregutt','Roger Voss','Sean P. Sullivan',
-                      'Jeff Jenssen', 'Jim Gordon') ~ "M",
-      
-  taster_name %in% c('Anna Lee C. Iijima', 'Virginie Boone',
-                     'Susan Kostrzewa','Lauren Buzzeo','Kerin O?Keefe',
-                     'Fiona Adams','Christina Pickard','Carrie Dykes',
-                     'Anne Krebiehl MW') ~ "F"
-   )))
-
-wine_kontynent <- readxl::read_excel("data/kontynenty/lista kontynentow.xlsx")
-
-wine <- wine_kontynent %>% 
-   full_join(wine, ., by = c("country" = "country")) 
-
-wine <- wine %>% 
-   mutate(continents = as.factor(continents))
-
-wine_salary <- readxl::read_excel("data/srednia krajowa/salary.xlsx")
-
-wine <- wine_salary %>% 
-   left_join(wine, ., by = c("country" = "country")) 
-
-wine_super <- wine
-
-wine_super <- drop_na(wine, price, points)
-
-wine_super_lm <- lm(points ~ log(price), wine_super)
-
-wine_super <- wine_super %>% 
-  mutate(points_pred = predict(wine_super_lm)) %>% 
-  mutate(points_resid = points - points_pred) %>% 
-  mutate(points_resid_std = scale(points_resid))
-
-wine_super <- wine_super %>% 
-  mutate(wine = case_when(
-      points_resid_std > 2 ~ 'good', 
-      points_resid_std < -2 ~ 'bad',
-      TRUE ~ 'normal'
-      
-  )) %>% 
-  mutate(wine2 = case_when(
-    points_resid_std > 1 ~ 'good', 
-    points_resid_std < -1 ~ 'bad',
-    TRUE ~ 'normal'
-  ))
-
-wine_min <- wine
-
-wine_min <- wine_min%>% 
-  select(description, points)
-
-text_min1 <- wine_min %>% 
-  filter(points == 80) 
-```
 
 <center>
 ![word cloud](pic1.png)
@@ -134,7 +26,7 @@ Did you know that the oldest traces of wine date back 6000 years ago and were di
 
 But where is the consumer in the brush of alcohol shops? Choosing the right wine is not an easy thing to do, especially for someone who simply does not know wines. Although, according to statistical surveys, in 2020 a Pole drank an average of 3.5 liters of wine and we are still far from the leader in this classification, which is France (40 liters), this market is growing dynamically, and the demand for good quality wines is growing year by year. 
 
-Data from the site [Kaggle](https://www.kaggle.com/zynicide/wine-reviews) include over `r length(unique(wine))` thousand unique wines that have been reviewed by world-class wine experts such as Paul Gregutt, czy Virginie Boone. By analyzing this data, I wanted to understand the needs of a potential client and try to answer the most mediocre and at the same time the most frequent questions; 
+Data from the site [Kaggle](https://www.kaggle.com/zynicide/wine-reviews) include over 17 thousand unique wines that have been reviewed by world-class wine experts such as Paul Gregutt, czy Virginie Boone. By analyzing this data, I wanted to understand the needs of a potential client and try to answer the most mediocre and at the same time the most frequent questions; 
 - *Does a good and highly valued wine have to be expensive?*
 - *Which country does the best wines come from?*
 - *Which wines are both cheap and highly valued, and which on the contrary?*
@@ -148,26 +40,17 @@ The answer to these and other questions is hidden in my analysis to I invite you
 <center>
 # Did the more expensive wines get higher points?
 
-```{r}
-wine %>% 
-filter(years %in% c(2016, 2015, 2014, 2013, 2012, 2011)) %>% 
-  ggplot(aes(x = price, y = points, colour = as.factor(years))) + 
-  geom_smooth() +
-  scale_y_continuous(breaks = seq(from = 80, to = 100, by = 1)) +
-  scale_fill_brewer(palette = "Spectral") +
-  scale_x_log10() 
-```
+<img src="raportScript_files/figure-html/unnamed-chunk-1-1.png" width="90%" style="display: block; margin: auto;" />
 <div style="text-align: justify"> 
 
 I must admit that I expected such results. The linear relationship between the points obtained and the price is very clear here. However, some wines from 2013, despite their high price, were rated lower than the rest. 
 
 <div> 
-```{r}
-wine %>% 
-  filter(years == 2013, points < 93, price > 1000) %>% 
-  select(country, points, price, region, variety) %>% 
-  knitr::kable()
-```
+
+|country | points| price|region      |variety                  |
+|:-------|------:|-----:|:-----------|:------------------------|
+|France  |     88|  3300|Médoc       |Bordeaux-style Red Blend |
+|US      |     91|  2013|Arroyo Seco |Chardonnay               |
 <div style="text-align: justify"> 
 
 As you can see, there are only two wines. However, when buying a wine for $ 2,000 or $ 3,000, I would like it to be as good as possible and receive the maximum number of points from the reviewer. Especially that for one wine in the 'good' category, I have as many as 75 bottles of outstanding wine.
@@ -181,12 +64,22 @@ As you can see, there are only two wines. However, when buying a wine for $ 2,00
 This is probably one of the most important pieces of information that I have found while analyzing this data. WI did a linear regression to accurately determine the rest of the model. In the case of negative residuals, we will deal with wines with a high price and low points, while wines with a low price and high points will have positive residuals.
 
 <div"> 
-```{r}
-wine_super %>% 
-  select(country, points, price, region, variety, points_resid) %>% 
-  slice_max(points_resid, n = 13) %>% 
-  knitr::kable()
-```
+
+|country  | points| price|region                  |variety                  | points_resid|
+|:--------|------:|-----:|:-----------------------|:------------------------|------------:|
+|US       |     99|    44|Sonoma Coast            |Chardonnay               |     9.240777|
+|US       |    100|    80|Columbia Valley (WA)    |Syrah                    |     8.538069|
+|US       |    100|    80|Walla Walla Valley (WA) |Syrah                    |     8.538069|
+|US       |     96|    20|Columbia Valley (WA)    |Syrah                    |     8.486393|
+|US       |     97|    35|El Dorado               |Syrah                    |     7.892544|
+|US       |     98|    50|Columbia Valley (WA)    |Bordeaux-style Red Blend |     7.876693|
+|US       |     99|    75|Walla Walla Valley (OR) |Syrah                    |     7.721882|
+|US       |     99|    75|Sonoma Coast            |Pinot Noir               |     7.721882|
+|US       |     99|    75|Walla Walla Valley (OR) |Syrah                    |     7.721882|
+|Portugal |     94|    13|NA                      |Portuguese Red           |     7.713312|
+|Italy    |     96|    27|Chianti Classico        |Red Blend                |     7.631661|
+|US       |     96|    27|El Dorado               |Grenache                 |     7.631661|
+|US       |     96|    27|Dundee Hills            |Chardonnay               |     7.631661|
 <div style="text-align: justify"> 
 As we can see, in this case we have the wines that consumers are most interested in. Because when buying wine, who has never asked themselves the question 'What kind of wine should you choose to make it good, but the price is decent?' let the first one throw a stone! As you can see in the first place we have a wine that costs $ 44 and received as much as 99 points out of 100 from the reviewer! As you can see, a low price can often go hand in hand with the quality and taste of wine. 
 
@@ -195,12 +88,19 @@ As we can see, in this case we have the wines that consumers are most interested
 <center>
 # Wines we should avoid!
 
-```{r}
-wine_super %>% 
-  select(country, points, price, region, variety, points_resid) %>% 
-  slice_min(points_resid, n = 10) %>% 
-  knitr::kable()
-```
+
+|country  | points| price|region             |variety                  | points_resid|
+|:--------|------:|-----:|:------------------|:------------------------|------------:|
+|France   |     88|  3300|Médoc              |Bordeaux-style Red Blend |    -14.05592|
+|Spain    |     81|   130|Montsant           |Red Blend                |    -11.84471|
+|Spain    |     83|   225|Rioja              |Tempranillo Blend        |    -11.40709|
+|US       |     82|   150|Paso Robles        |Bordeaux-style Red Blend |    -11.25228|
+|US       |     80|    69|Napa Valley        |Zinfandel                |    -11.04064|
+|France   |     87|   800|Menetou-Salon      |Rosé                     |    -11.01996|
+|Portugal |     87|   790|NA                 |Port                     |    -10.98413|
+|US       |     81|    95|Saddle Rock-Malibu |Bordeaux-style Red Blend |    -10.95138|
+|Chile    |     81|    90|NA                 |Bordeaux-style Red Blend |    -10.79739|
+|US       |     81|    85|Knights Valley     |Cabernet Sauvignon       |    -10.63460|
 <div style="text-align: justify"> 
 
 We try to avoid these wines, because they are not very well rated by reviewers, but their price, often very high, discourages potential customers from buying them. Taking into account the awarded points and their price, I would definitely not risk buying such a wine and I am glad that someone did it for me.
@@ -210,13 +110,7 @@ We try to avoid these wines, because they are not very well rated by reviewers, 
 <center>
 # Have the older wines scored better?
 
-```{r}
-wine_super %>% 
-filter(years > 1990) %>% 
-  ggplot(aes(x = years, fill = wine)) +
-  scale_fill_brewer(palette = "Spectral") +
-  geom_density(alpha =.5, adjust = 2.5 )
-```
+<img src="raportScript_files/figure-html/unnamed-chunk-5-1.png" width="90%" style="display: block; margin: auto;" />
 <div style="text-align: justify"> 
 
 In my analysis, I wanted to focus mainly on the biggest stereotypes and check their reality in the real world. As it turns out, the age of the wine does not always affect its quality. In the chart, we can see visible differences between the groups of wines. Perhaps the myth that better wine = older wine has just been refuted? It is so often that time is not good for wines at all. An example is the French Beaujolais nouveau, a red wine made from gamay grape varieties. The production process allows the fermentation to be completed quickly and the wine is sold as soon as it is finished, however, as a consequence, the life of such wine is limited only to about a year.
@@ -232,50 +126,18 @@ In my analysis, I wanted to focus mainly on the biggest stereotypes and check th
 Another question that bothers everyone; 'Which country do you choose a good wine from?' Since we do not know each other about the strains, we do not know anything about the yearbook, maybe the knowledge of the country of origin will help us with this?
 
 <div> 
-```{r}
-wine_super %>% 
-add_count(country) %>% 
-drop_na(continents) %>% 
-filter(n > 50) %>% 
-group_by(country) %>% 
-summarise(mean_points_resid = mean(points_resid)) %>% 
-  ggplot(aes(x = country, y = mean_points_resid)) + 
-  geom_col(stat = "identity", fill = "firebrick4", alpha =.6, width =.4) +
-  labs(x = "continents",
-       y = "mean points resid") +
-  labs(title = "For which countries the linear regression model was 
-       the most wrong") +
-  coord_flip()
-```
+<img src="raportScript_files/figure-html/unnamed-chunk-6-1.png" width="90%" style="display: block; margin: auto;" />
 
 <div> 
 
-```{r}
-wine %>% 
-filter(country %in% c("Italy", "Portugal", "US", "France", "Germany", 
-                      "Spain")) %>% 
-  ggplot(aes(points, fill = country)) +
-  theme(legend.position = "bottom") +
-  scale_fill_brewer(palette = "Spectral") +
-  labs(title = "Distribution of wine points for different countries") +
-  geom_density(alpha =.6, adjust = 2.5)
-```
+<img src="raportScript_files/figure-html/unnamed-chunk-7-1.png" width="90%" style="display: block; margin: auto;" />
 
 <div style="text-align: justify"> 
 
 And we have the answer! If we want a good wine, we will DEFINITELY choose Mexico or Brazil, unless we do not care;) Interestingly, wines from Austria and Germany are the best, while such old-timers as Italy and France ranked low in the ranking. It seems that for wine connoisseurs, the podium should not be surprising. Both Austria and Germany are leaders in the production of riesling, world-famous white wines. Interestingly, this grape can be used to produce both slovak and dry wines, so something for everyone.
 
 <div>
-```{r}
-wine_super %>% 
-add_count(country) %>% 
-filter(n > 100) %>% 
-  ggplot(aes(x = country, fill = wine2)) +
-  geom_bar(position = 'fill') +
-  scale_fill_brewer(palette="Spectral") +
-  labs(title = "Number of different types of wines in the countries") +
-  theme(axis.text.x = element_text(angle = -90)) 
-```
+<img src="raportScript_files/figure-html/unnamed-chunk-8-1.png" width="90%" style="display: block; margin: auto;" />
 
 ********************************************************************************
 <center>
@@ -286,33 +148,7 @@ filter(n > 100) %>%
 Having wine reviews in the form of tweets in the database, I couldn't help but take advantage of it. I split my dataset into low-scoring wines and those with the most points, and then ran a sentiment analysis. For these two groups, I checked which expressions correlate with the word 'flavor'. I was very curious if the differences in the choice of words by the reviewers would be so visible that it would allow us to draw certain conclusions based on them.
 
 <div>
-```{r}
-wine_max <- wine
 
-wine_max <- wine_max%>% 
-  select(description, points)
-
-text_max <- wine_max %>% 
-  filter(points >= 95) 
-
-text_max <- readLines('data/chmura slow/wine_max95.csv')
-docs2 <- Corpus(VectorSource(text_max))
-toSpace <- content_transformer(function (x, pattern ) gsub(pattern, " ", x))
-docs2 <- tm_map(docs2, toSpace, "/")
-docs2 <- tm_map(docs2, toSpace, "@")
-docs2 <- tm_map(docs2, toSpace, "\\|")
-docs2 <- tm_map(docs2, stripWhitespace)
-docs2 <- tm_map(docs2, removePunctuation)
-docs2 <- tm_map(docs2, removeNumbers)
-docs2 <- tm_map(docs2, content_transformer(tolower))
-docs2 <- tm_map(docs2, removeWords, stopwords("english"))
-docs2 <- tm_map(docs2, removeWords, c("â€“")) 
-docs2 <- tm_map(docs2, stemDocument)
-dtm_max <- TermDocumentMatrix(docs2)
-m <- as.matrix(dtm_max)
-v <- sort(rowSums(m), decreasing = TRUE)
-d <- data.frame(word = names(v), freq = v)
-```
 
 Features of better wines
 
@@ -320,33 +156,7 @@ Features of better wines
 |:-------:|:-----:|:-------:|:------:|:------:|:-----:|:-------:|:-----:|:-----:|
 | 0.41    |  0.41 | 0.35    | 0.34   | 0.32   | 0.32  |   0.32  |  0.31 | 0.31  |
 
-```{r}
-wine_min <- wine
 
-wine_min <- wine_min%>% 
-  select(description, points)
-
-text_min1 <- wine_min %>% 
-  filter(points == 80) 
-
-text_min <- readLines('data/chmura slow/wine_min80.csv')
-docs1 <- Corpus(VectorSource(text_min))
-toSpace <- content_transformer(function (x, pattern ) gsub(pattern, " ", x))
-docs1 <- tm_map(docs1, toSpace, "/")
-docs1 <- tm_map(docs1, toSpace, "@")
-docs1 <- tm_map(docs1, toSpace, "\\|")
-docs1 <- tm_map(docs1, stripWhitespace)
-docs1 <- tm_map(docs1, removePunctuation)
-docs1 <- tm_map(docs1, removeNumbers)
-docs1 <- tm_map(docs1, content_transformer(tolower))
-docs1 <- tm_map(docs1, removeWords, stopwords("english"))
-docs1 <- tm_map(docs1, removeWords, c(" â€“")) 
-docs1 <- tm_map(docs1, stemDocument)
-dtm_min <- TermDocumentMatrix(docs1)
-m1 <- as.matrix(dtm_min)
-v1 <- sort(rowSums(m1), decreasing = TRUE)
-d1 <- data.frame(word = names(v1),freq = v1)
-```
 
 Features of inferior wines
 
@@ -361,18 +171,10 @@ BINGO! It turns out that the differences do exist and are very clear. While the 
 Below we can see which words were the most popular among the reviewers when writing reviews about individual wines.
 
 <div>
-```{r}
-barplot(d1[1:10,]$freq, las = 2, names.arg = d1[1:10,]$word,
-        col ="firebrick4", main ="The most common words for the worst wines",
-        ylab = "The frequency of words")
-```
+<img src="raportScript_files/figure-html/unnamed-chunk-11-1.png" width="90%" style="display: block; margin: auto;" />
 
 
-```{r}
-barplot(d[1:10,]$freq, las = 2, names.arg = d[1:10,]$word,
-        col ="firebrick4", main ="The most common words for the best wines",
-        ylab = "The frequency of words")
-```
+<img src="raportScript_files/figure-html/unnamed-chunk-12-1.png" width="90%" style="display: block; margin: auto;" />
 
 ********************************************************************************
 <center>
@@ -385,21 +187,7 @@ As I mentioned at the beginning, the 21st century brought about a significant ch
 The fact that nowadays it is possible to grow grapevines in virtually every country, I wanted to check the price of wine depending on the continent it comes from.
 
 </div>
-```{r}
-wine %>% 
-filter(years > 1980) %>% 
-drop_na(continents) %>% 
-  ggplot(aes(x = continents, y = price, fill = continents)) + 
-  geom_boxplot() +
-  scale_y_log10() +
-  scale_fill_brewer(palette = "Spectral") +
-  labs(title = "Average wine prices due to the continent",
-       subtitle = "For wines above 1980") +
-  coord_flip() +
-  xlab("") +
-  ylab("price log") +
-  theme_bw()
-```
+<img src="raportScript_files/figure-html/unnamed-chunk-13-1.png" width="90%" style="display: block; margin: auto;" />
 
 <div style="text-align: justify"> 
 As you can see, the price differences are not very noticeable at first glance. However, on closer inspection, we can come to the conclusion that the most expensive wines come from North America, and the cheapest from South America.

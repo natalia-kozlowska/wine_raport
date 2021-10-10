@@ -1,18 +1,10 @@
 ---
-output:
-  html_document:
-    toc: yes
-    toc_float: yes
-    theme: cosmo
-    keep_md: true
-  pdf_document:
-    toc: yes
-params:
-  year: 1995
-editor_options:
-  chunk_output_type: console
+title: "WINE raport"
+author: "Natalia Kozlowska"
+date: "10 10 2021"
+output: rmarkdown::github_document
 ---
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   echo = FALSE,
   warning = FALSE,
@@ -22,7 +14,6 @@ knitr::opts_chunk$set(
   fig.width = 6,
   fig.asp = 0.618
   )
-
 library("naniar")
 library("dplyr")
 library("tidyverse")
@@ -124,10 +115,9 @@ text_min1 <- wine_min %>%
 ```
 
 <center>
-![word cloud](pic1.png)
-
+![word cloud](picture1.png)
 <center>
-# INTRODUCTION
+### INTRODUCTION
 
 <div style="text-align: justify"> 
 
@@ -147,7 +137,7 @@ The answer to these and other questions is hidden in my analysis to I invite you
 *****************************************************************************
 
 <center>
-# Did the more expensive wines get higher points?
+### Did the more expensive wines get higher points?
 
 ```{r}
 wine %>% 
@@ -176,7 +166,7 @@ As you can see, there are only two wines. However, when buying a wine for $ 2,00
 <div> 
 ********************************************************************************
 <center>
-# Perfect wines!
+### Perfect wines!
 
 <div style="text-align: justify"> 
 This is probably one of the most important pieces of information that I have found while analyzing this data. WI did a linear regression to accurately determine the rest of the model. In the case of negative residuals, we will deal with wines with a high price and low points, while wines with a low price and high points will have positive residuals.
@@ -194,7 +184,7 @@ As we can see, in this case we have the wines that consumers are most interested
 <div> 
 ********************************************************************************
 <center>
-# Wines we should avoid!
+### Wines we should avoid!
 
 ```{r}
 wine_super %>% 
@@ -209,7 +199,7 @@ We try to avoid these wines, because they are not very well rated by reviewers, 
 <div> 
 ********************************************************************************
 <center>
-# Have the older wines scored better?
+### Have the older wines scored better?
 
 ```{r}
 wine_super %>% 
@@ -226,7 +216,7 @@ In my analysis, I wanted to focus mainly on the biggest stereotypes and check th
 
 ********************************************************************************
 <center>
-# Where are you from?
+### Where are you from?
 
 <div style="text-align: justify"> 
 
@@ -280,7 +270,7 @@ filter(n > 100) %>%
 
 ********************************************************************************
 <center>
-# Tweeter, tell me which wine is the best in the world!
+### Tweeter, tell me which wine is the best in the world!
 
 <div style="text-align: justify"> 
 
@@ -377,7 +367,7 @@ barplot(d[1:10,]$freq, las = 2, names.arg = d[1:10,]$word,
 
 ********************************************************************************
 <center>
-# Which continent are the most expensive wines?
+### Which continent are the most expensive wines?
 
 <div style="text-align: justify"> 
 
@@ -410,10 +400,10 @@ As you can see, the price differences are not very noticeable at first glance. H
 ********************************************************************************
 <center>
 
-# SUMMARY
+### Summary
 
 <div style="text-align: justify"> 
 
-Viticulture and wine production are important branches of the economy in many countries. Hundreds of thousands of people work in thousands of wine companies, contributing to an increase in the national income. The wine trade is global. Price differences make wine affordable for the mass consumer. Special wines are also the subject of investment. My analysis was mainly to answer the question that probably every potential wine consumer asks himself, "which wines are of the highest quality and at the same time are not very expensive". However, I wanted my analysis to be transparent enough to help people who are just starting their adventure with winemaking. Instead of focusing on individual wines or strains of which there are countless numbers, I wanted to focus on countries and analyze them carefully. It is much easier for novices to remember which country a good wine may come from than the name of the grape variety. "Wine is light, stopped by water" - Galileo Galilei
+Viticulture and wine production are important branches of the economy in many countries. Hundreds of thousands of people work in thousands of wine companies, contributing to an increase in the national income. The wine trade is global. Price differences make wine affordable for the mass consumer. Special wines are also the subject of investment. My analysis was mainly to answer the question that probably every potential wine consumer asks himself, "which wines are of the highest quality and at the same time are not very expensive". However, I wanted my analysis to be transparent enough to help people who are just starting their adventure with winemaking. Instead of focusing on individual wines or strains of which there are countless numbers, I wanted to focus on countries and analyze them carefully. It is much easier for novices to remember which country a good wine may come from than the name of the grape variety. *"Wine is light, stopped by water"* - Galileo Galilei
 
 </div>
